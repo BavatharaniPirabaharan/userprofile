@@ -1,0 +1,44 @@
+{
+  "name": "itproject",
+  "version": "1.0.0",
+  "description": "Axento Books for IT Project",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Bavatharani",
+  "license": "ISC",
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mui/icons-material": "^7.0.2",
+    "@mui/material": "^7.0.2",
+    "all": "^0.0.0",
+    "axios": "^1.9.0",
+    "bcrypt": "^5.1.1",
+    "bcryptjs": "^3.0.2",
+    "cors": "^2.8.5",
+    "date-fns": "^4.1.0",
+    "dotenv": "^16.5.0",
+    "express": "^4.21.2",
+    "google-auth-library": "^9.15.1",
+    "googleapis": "^148.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "jspdf": "^3.0.1",
+    "lucide-react": "^0.503.0",
+    "moment": "^2.30.1",
+    "mongoose": "^8.14.0",
+    "node-fetch": "^3.3.2",
+    "papaparse": "^5.5.2",
+    "pdfkit": "^0.17.0",
+    "react-dom": "^19.1.0",
+    "react-router-dom": "^7.5.3",
+    "react-scripts": "^5.0.1",
+    "vite": "^6.2.3",
+    "web-vitals": "^4.2.4"
+  },
+  "devDependencies": {
+    "lint-staged": "^15.5.0"
+  }
+}
