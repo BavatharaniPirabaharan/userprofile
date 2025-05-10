@@ -28,14 +28,14 @@ const getGeminiResponse = async (message, userId) => {
 
     // Prepare the prompt with financial context
     const prompt = `
-      You are a financial assistant for ${user.businessName || 'the user'}. 
-      Here is the current financial context:
-      ${financialContext}
-      
-      User's question: ${message}
-      
-      Please provide a detailed, professional response that takes into account the user's financial context.
-      Focus on providing actionable insights and clear explanations.
+    You are a financial assistant for ${user.firstName || 'the user'}. 
+    Here is the current financial context:
+    ${financialContext}
+
+    User's question: ${message}
+
+    Please provide a simple, professional response that takes into account the user's financial context.
+    Focus on providing accurate details but only provide the necessary things that are asked. Give the whole explanation only when it's asked to explain. and dont mention the username when replying. make it simple and short as possible.
     `;
 
     // Check if API key is available

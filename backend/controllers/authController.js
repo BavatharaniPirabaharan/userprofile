@@ -1,6 +1,6 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const User = require("../models/User");  // Import User model
+const User = require("../models/User");
 
 // Register User
 const registerUser = async (req, res) => {
@@ -69,16 +69,12 @@ const registerUser = async (req, res) => {
             });
         }
 
-        // Hash the password before saving
-        const hashedPassword = await bcrypt.hash(password, 10);
-        console.log('Password hashed successfully');
-
         // Create a new user
         const newUser = new User({ 
             firstName,
             lastName,
             email, 
-            password: hashedPassword,
+            password: password,
             businessName,
             phoneNumber,
             nonCurrentAssets: nonCurrentAssets ? Number.parseFloat(nonCurrentAssets) : 0,

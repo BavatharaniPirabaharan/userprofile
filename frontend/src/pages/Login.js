@@ -1,6 +1,6 @@
+// export default Login;
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Box, Card, CardContent, TextField, Button, Typography, IconButton, InputAdornment, Alert } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { authAPI } from '../config/api';
 
@@ -128,125 +128,90 @@ const Login = () => {
   };
 
   return (
-    <Box
-      sx={{
-        minHeight: '100vh',
-        width: '100%',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        bgcolor: 'background.default',
-        py: 3,
-        px: 2,
-      }}
-    >
-      <Card sx={{ maxWidth: '30%', width: '100%', boxShadow: 3, color: 'white' }}>
-        <CardContent sx={{ p: 4 }}>
-          <Box component="form" onSubmit={handleSubmit} noValidate>
-            <Typography variant="h4" component="h1" gutterBottom align="center" sx={{ mb: 4 }}>
-              Login
-            </Typography>
+    <div className="min-h-screen w-full flex items-center justify-center bg-gray-100 py-8 px-4">
+      <div className="max-w-md w-full shadow-lg rounded-lg bg-gray-300">
+        <div className="p-8">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <h1 className="text-3xl font-bold text-center mb-6">Login</h1>
 
             {error && (
-              <Alert severity="error" sx={{ mb: 3 }}>
+              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
                 {error}
-              </Alert>
+              </div>
             )}
 
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="email"
-              label="Email Address"
-              name="email"
-              autoComplete="email"
-              autoFocus
-              value={formData.email}
-              onChange={handleChange}
-              error={!!fieldErrors.email}
-              helperText={fieldErrors.email}
-              sx={{
-                mb: 2,
-                '& .MuiInputBase-root': {
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)', // Background color
-                },
-                '& .MuiInputBase-input': {
-                  color: 'white', // White text color
-                },
-                '& input:-webkit-autofill': {
-                  backgroundColor: 'rgba(255, 255, 255, 0.1) !important', // Prevent autofill background color override
-                  color: 'white !important', // Prevent autofill text color override
-                },
-              }}
-            />
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                Email Address
+              </label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+                value={formData.email}
+                onChange={handleChange}
+                className={`w-full px-3 py-2 border ${fieldErrors.email ? 'border-red-500' : 'border-gray-300'} rounded-md bg-white bg-opacity-40 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
+              />
+              {fieldErrors.email && (
+                <p className="mt-1 text-sm text-red-600">{fieldErrors.email}</p>
+              )}
+            </div>
 
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="password"
-              label="Password"
-              type={showPassword ? 'text' : 'password'}
-              id="password"
-              autoComplete="current-password"
-              value={formData.password}
-              onChange={handleChange}
-              error={!!fieldErrors.password}
-              helperText={fieldErrors.password}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton onClick={togglePasswordVisibility} edge="end">
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-              sx={{
-                mb: 3,
-                '& .MuiInputBase-root': {
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)', // Background color
-                },
-                '& .MuiInputBase-input': {
-                  color: 'white', // White text color
-                },
-                '& input:-webkit-autofill': {
-                  backgroundColor: 'rgba(255, 255, 255, 0.1) !important', // Prevent autofill background color override
-                  color: 'white !important', // Prevent autofill text color override
-                },
-              }}
-            />
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                Password
+              </label>
+              <div className="relative">
+                <input
+                  id="password"
+                  name="password"
+                  type={showPassword ? 'text' : 'password'}
+                  autoComplete="current-password"
+                  required
+                  value={formData.password}
+                  onChange={handleChange}
+                  className={`w-full px-3 py-2 border ${fieldErrors.password ? 'border-red-500' : 'border-gray-300'} rounded-md bg-white bg-opacity-40 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
+                />
+                <button
+                  type="button"
+                  onClick={togglePasswordVisibility}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                >
+                  {showPassword ? (
+                    <VisibilityOff className="h-5 w-5 text-gray-500" />
+                  ) : (
+                    <Visibility className="h-5 w-5 text-gray-500" />
+                  )}
+                </button>
+              </div>
+              {fieldErrors.password && (
+                <p className="mt-1 text-sm text-red-600">{fieldErrors.password}</p>
+              )}
+            </div>
 
-            <Button
+            <button
               type="submit"
-              fullWidth
-              variant="contained"
               disabled={loading}
-              sx={{
-                mb: 3,
-                py: 1.5,
-                backgroundColor: 'primary.main',
-                '&:hover': {
-                  backgroundColor: 'primary.dark',
-                },
-              }}
+              className={`w-full py-3 px-4 border border-transparent rounded-md shadow-sm text-white font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${loading ? 'bg-blue-400' : 'bg-blue-800 hover:bg-blue-700'}`}
             >
               {loading ? 'Signing in...' : 'Sign In'}
-            </Button>
+            </button>
 
-            <Box sx={{ textAlign: 'center' }}>
-              <Typography variant="body2" color="text.secondary" gutterBottom>
-                Don&apos;t have an account?{' '}
-                <Link to="/register" style={{ color: 'primary.main', textDecoration: 'none' }}>
-                  Sign up
-                </Link>
-              </Typography>
-            </Box>
-          </Box>
-        </CardContent>
-      </Card>
-    </Box>
+            <p className="text-sm text-gray-600">
+             Don&apos;t have an account?{' '}
+             <Link 
+            to="/register" 
+           className="text-blue-600 hover:text-blue-800 font-medium"
+            >
+         Sign up
+        </Link>
+</p>
+          </form>
+        </div>
+      </div>
+    </div>
   );
 };
 

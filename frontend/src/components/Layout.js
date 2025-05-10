@@ -1,28 +1,14 @@
+// export default Layout; 
 import React, { useState } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { Menu, MenuItem } from '@mui/material'; // still using MUI for Menu (optional, replace later)
 import {
-  AppBar,
-  Box,
-  Drawer,
-  IconButton,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Toolbar,
-  Typography,
-  useMediaQuery,
-  Avatar,
-  Menu,
-  MenuItem,
-} from '@mui/material';
-import { useTheme } from '@mui/material/styles';
-import MenuIcon from '@mui/icons-material/Menu';
-import DashboardIcon from '@mui/icons-material/Dashboard';
-import PersonIcon from '@mui/icons-material/Person';
-import LogoutIcon from '@mui/icons-material/Logout';
-import DescriptionIcon from '@mui/icons-material/Description';
+  Dashboard as DashboardIcon,
+  Person as PersonIcon,
+  Logout as LogoutIcon,
+  Description as DescriptionIcon,
+  Menu as MenuIcon,
+} from '@mui/icons-material';
 
 const drawerWidth = 240;
 
@@ -33,11 +19,8 @@ const menuItems = [
 ];
 
 function Layout() {
-  const theme = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
 
@@ -59,111 +42,80 @@ function Layout() {
   };
 
   const drawer = (
-    <Box sx={{ mt: 2 }}>
-      <List>
-        {menuItems.map((item) => (
-          <ListItem key={item.text} disablePadding>
-            <ListItemButton
-              selected={location.pathname === item.path}
-              onClick={() => {
-                navigate(item.path);
-                if (isMobile) setMobileOpen(false);
-              }}
-            >
-              <ListItemIcon sx={{ color: location.pathname === item.path ? 'primary.main' : 'inherit' }}>
-                {item.icon}
-              </ListItemIcon>
-              <ListItemText primary={item.text} />
-            </ListItemButton>
-          </ListItem>
-        ))}
-      </List>
-    </Box>
+    <nav className="mt-4 space-y-2">
+      {menuItems.map((item) => (
+        <button
+          key={item.text}
+          onClick={() => {
+            navigate(item.path);
+            if (mobileOpen) setMobileOpen(false);
+          }}
+          className={`flex items-center w-full px-4 py-2 text-left hover:bg-gray-200 ${
+            location.pathname === item.path ? 'bg-blue-100 text-blue-600 font-semibold' : ''
+          }`}
+        >
+          <span className="mr-3">{item.icon}</span>
+          {item.text}
+        </button>
+      ))}
+    </nav>
   );
 
   return (
-    <Box sx={{ display: 'flex' }}>
-      <AppBar
-        position="fixed"
-        sx={{
-          width: { md: `calc(100% - ${drawerWidth}px)` },
-          ml: { md: `${drawerWidth}px` },
-        }}
-      >
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            edge="start"
-            onClick={handleDrawerToggle}
-            sx={{ mr: 2, display: { md: 'none' } }}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-            {menuItems.find((item) => item.path === location.pathname)?.text || 'Dashboard'}
-          </Typography>
-          <IconButton
-            onClick={handleProfileMenuOpen}
-            size="small"
-            sx={{ ml: 2 }}
-          >
-            <Avatar sx={{ width: 32, height: 32 }}>U</Avatar>
-          </IconButton>
-          <Menu
-            anchorEl={anchorEl}
-            open={Boolean(anchorEl)}
-            onClose={handleProfileMenuClose}
-            onClick={handleProfileMenuClose}
-          >
-            <MenuItem onClick={() => navigate('/profile')}>
-              <ListItemIcon>
-                <PersonIcon fontSize="small" />
-              </ListItemIcon>
-              <Typography variant="body2">Profile</Typography>
-            </MenuItem>
-            <MenuItem onClick={handleLogout}>
-              <ListItemIcon>
-                <LogoutIcon fontSize="small" />
-              </ListItemIcon>
-              <Typography variant="body2">Logout</Typography>
-            </MenuItem>
-          </Menu>
-        </Toolbar>
-      </AppBar>
-      <Box
-        component="nav"
-        sx={{ width: { md: drawerWidth }, flexShrink: { md: 0 } }}
-      >
-        <Drawer
-          variant={isMobile ? 'temporary' : 'permanent'}
-          open={isMobile ? mobileOpen : true}
-          onClose={handleDrawerToggle}
-          ModalProps={{
-            keepMounted: true, // Better open performance on mobile.
-          }}
-          sx={{
-            '& .MuiDrawer-paper': {
-              boxSizing: 'border-box',
-              width: drawerWidth,
-            },
-          }}
+    <div className="flex min-h-screen">
+      {/* AppBar */}
+      <header className="fixed top-0 z-10 flex w-full items-center justify-between bg-blue-600 text-white px-4 py-3 md:ml-[240px] md:w-[calc(100%-240px)]">
+        {/* Mobile Menu Button */}
+        <button
+          className="md:hidden"
+          onClick={handleDrawerToggle}
         >
-          {drawer}
-        </Drawer>
-      </Box>
-      <Box
-        component="main"
-        sx={{
-          flexGrow: 1,
-          p: 3,
-          width: { md: `calc(100% - ${drawerWidth}px)` },
-          mt: '64px',
-        }}
+          <MenuIcon />
+        </button>
+        {/* Title */}
+        <h1 className="text-lg font-semibold">
+          {menuItems.find((item) => item.path === location.pathname)?.text || 'Dashboard'}
+        </h1>
+        {/* Profile Avatar */}
+        <button onClick={handleProfileMenuOpen}>
+          <div className="w-8 h-8 rounded-full bg-white text-blue-600 flex items-center justify-center">
+            U
+          </div>
+        </button>
+        {/* Profile Menu (still using MUI Menu for now) */}
+        <Menu
+          anchorEl={anchorEl}
+          open={Boolean(anchorEl)}
+          onClose={handleProfileMenuClose}
+          onClick={handleProfileMenuClose}
+        >
+          <MenuItem onClick={() => navigate('/profile')}>
+            <PersonIcon fontSize="small" className="mr-2" />
+            Profile
+          </MenuItem>
+          <MenuItem onClick={handleLogout}>
+            <LogoutIcon fontSize="small" className="mr-2" />
+            Logout
+          </MenuItem>
+        </Menu>
+      </header>
+
+      {/* Sidebar */}
+      <aside
+        className={`fixed top-0 z-20 h-full bg-white border-r shadow-md transition-transform duration-300 md:translate-x-0 md:w-[${drawerWidth}px] ${
+          mobileOpen ? 'translate-x-0 w-[240px]' : '-translate-x-full'
+        }`}
       >
+        <div className="h-16 flex items-center px-4 font-bold text-lg border-b">My App</div>
+        {drawer}
+      </aside>
+
+      {/* Main content */}
+      <main className="flex-1 p-4 mt-16 md:ml-[240px]">
         <Outlet />
-      </Box>
-    </Box>
+      </main>
+    </div>
   );
 }
 
-export default Layout; 
+export default Layout;

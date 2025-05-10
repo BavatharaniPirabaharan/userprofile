@@ -1,16 +1,9 @@
+// export default Profile;
 import React, { useState, useEffect } from 'react';
-import {
-  Box,
-  Container,
-  Typography,
-  TextField,
-  Button,
-  Grid,
-  Paper,
-  Snackbar,
-  Alert,
-} from '@mui/material';
 import { authAPI } from '../config/api';
+import { jsPDF } from "jspdf";
+import { motion } from "framer-motion";
+
 
 const Profile = () => {
   const [profile, setProfile] = useState({
@@ -36,11 +29,8 @@ const Profile = () => {
     severity: 'success',
   });
 
-  // State for searching subscriptions by month
   const [searchMonth, setSearchMonth] = useState('');
-  const [subscriptions, setSubscriptions] = useState([
-    
-  ]);
+  const [subscriptions, setSubscriptions] = useState([]);
   const [filteredSubscriptions, setFilteredSubscriptions] = useState(subscriptions);
 
   useEffect(() => {
@@ -94,7 +84,7 @@ const Profile = () => {
       try {
         await authAPI.deleteProfile();
         localStorage.removeItem('token');
-        localStorage.removeItem('profileImage'); // Also remove the profile image
+        localStorage.removeItem('profileImage');
         window.location.href = '/login';
       } catch (error) {
         console.error('Error deleting profile:', error);
@@ -130,7 +120,6 @@ const Profile = () => {
     localStorage.removeItem('profileImage');
   };
 
-  // Filter subscriptions based on the search input
   const handleSearchChange = (e) => {
     const searchTerm = e.target.value;
     setSearchMonth(searchTerm);
@@ -145,250 +134,312 @@ const Profile = () => {
     }
   };
 
+
+
   return (
-    <Container maxWidth="lg">
-      <Grid container spacing={4} sx={{ mt: 4 }}>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Left: Profile */}
-        <Grid item xs={12} md={8}>
-          <Box sx={{ mb: 4 }}>
-            <Paper elevation={3} sx={{ p: 4 }}>
-              <Typography variant="h4" gutterBottom sx={{ color: '#ffffff' }}>
-                Profile
-              </Typography>
+        <div className="md:col-span-2">
+          <div className="mb-6">
+            <div className="bg-gray-300 p-6 rounded-lg shadow">
+              <h2 className="text-2xl font-bold mb-4 text-black">Profile</h2>
 
               {/* Profile Image Section */}
-              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 4 }}>
+              <div className="flex flex-col items-center mb-6">
                 {profileImage ? (
                   <>
                     <img
                       src={profileImage}
                       alt="Profile"
-                      style={{
-                        width: 120,
-                        height: 120,
-                        borderRadius: '50%',
-                        objectFit: 'cover',
-                      }}
+                      className="w-32 h-32 rounded-full object-cover"
                     />
                     {isEditing && (
-                      <Box sx={{ mt: 1 }}>
-                        <Button component="label" variant="outlined" size="small">
+                      <div className="mt-2">
+                        <label className="inline-flex items-center px-3 py-1 border border-gray-300 rounded-md shadow-sm text-sm font-medium bg-white hover:bg-gray-50 cursor-pointer">
                           Change Photo
-                          <input type="file" hidden accept="image/*" onChange={handleImageUpload} />
-                        </Button>
-                        <Button onClick={handleDeleteImage} color="error" size="small" sx={{ ml: 2 }}>
+                          <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
+                        </label>
+                        <button 
+                          onClick={handleDeleteImage} 
+                          className="ml-2 px-3 py-1 border border-red-300 rounded-md shadow-sm text-sm font-medium text-red-700 bg-white hover:bg-red-50"
+                        >
                           Delete
-                        </Button>
-                      </Box>
+                        </button>
+                      </div>
                     )}
                   </>
                 ) : (
                   <>
-                    <Box
-                      sx={{
-                        width: 120,
-                        height: 120,
-                        borderRadius: '50%',
-                        bgcolor: 'grey.300',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: 24,
-                      }}
-                    >
+                    <div className="w-32 h-32 rounded-full bg-gray-400 flex items-center justify-center text-2xl">
                       ?
-                    </Box>
+                    </div>
                     {isEditing && (
-                      <Button component="label" variant="outlined" size="small" sx={{ mt: 1 }}>
+                      <label className="mt-2 inline-flex items-center px-3 py-1 border border-gray-300 rounded-md shadow-sm text-sm font-medium bg-blue-800 text-white hover:bg-blue-700 cursor-pointer">
                         Upload Photo
-                        <input type="file" hidden accept="image/*" onChange={handleImageUpload} />
-                      </Button>
+                        <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
+                      </label>
                     )}
                   </>
                 )}
-              </Box>
+              </div>
 
               <form onSubmit={handleSubmit}>
-                <Grid container spacing={3}>
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      fullWidth
-                      label="First Name"
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-black mb-1">First Name</label>
+                    <input
+                      className="w-full px-3 py-2 border border-black rounded-md bg-white bg-opacity-40 text-gray-700 disabled:opacity-50"
+                      type="text"
                       name="firstName"
                       value={profile.firstName}
                       onChange={handleChange}
                       disabled={!isEditing}
-                      sx={{
-                        input: { color: 'white' },           // for the input text
-                        label: { color: 'gray' },            // for the label text
-                        '& label.Mui-focused': { color: 'gray' }, // keep label gray when focused
-                      }}
                     />
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      fullWidth
-                      label="Last Name"
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-black mb-1">Last Name</label>
+                    <input
+                      className="w-full px-3 py-2 border border-black rounded-md bg-white bg-opacity-40 text-gray-700 disabled:opacity-50"
+                      type="text"
                       name="lastName"
                       value={profile.lastName}
                       onChange={handleChange}
                       disabled={!isEditing}
                     />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <TextField
-                      fullWidth
-                      label="Email"
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className="block text-sm font-medium text-black mb-1">Email</label>
+                    <input
+                      className="w-full px-3 py-2 border border-black rounded-md bg-white bg-opacity-40 text-gray-700 disabled:opacity-50"
+                      type="email"
                       name="email"
                       value={profile.email}
-                      onChange={handleChange}
                       disabled={true}
                     />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <TextField
-                      fullWidth
-                      label="Business Name"
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className="block text-sm font-medium text-black mb-1">Business Name</label>
+                    <input
+                      className="w-full px-3 py-2 border border-black rounded-md bg-white bg-opacity-40 text-gray-700 disabled:opacity-50"
+                      type="text"
                       name="businessName"
                       value={profile.businessName}
                       onChange={handleChange}
                       disabled={!isEditing}
                     />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <TextField
-                      fullWidth
-                      label="Phone Number"
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className="block text-sm font-medium text-black mb-1">Phone Number</label>
+                    <input
+                      className="w-full px-3 py-2 border border-black rounded-md bg-white bg-opacity-40 text-gray-700 disabled:opacity-50"
+                      type="text"
                       name="phoneNumber"
                       value={profile.phoneNumber}
                       onChange={handleChange}
                       disabled={!isEditing}
                     />
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      fullWidth
-                      label="Non-Current Assets"
-                      name="nonCurrentAssets"
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-black mb-1">Non-Current Assets</label>
+                    <input
+                      className="w-full px-3 py-2 border border-black rounded-md bg-white bg-opacity-40 text-gray-700 disabled:opacity-50"
                       type="number"
+                      name="nonCurrentAssets"
                       value={profile.nonCurrentAssets}
                       onChange={handleChange}
                       disabled={!isEditing}
                     />
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      fullWidth
-                      label="Liabilities"
-                      name="liabilities"
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-black mb-1">Liabilities</label>
+                    <input
+                      className="w-full px-3 py-2 border border-black rounded-md bg-white bg-opacity-40 text-gray-700 disabled:opacity-50"
                       type="number"
+                      name="liabilities"
                       value={profile.liabilities}
                       onChange={handleChange}
                       disabled={!isEditing}
                     />
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      fullWidth
-                      label="Equity"
-                      name="equity"
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-black mb-1">Equity</label>
+                    <input
+                      className="w-full px-3 py-2 border border-black rounded-md bg-white bg-opacity-40 text-gray-700 disabled:opacity-50"
                       type="number"
+                      name="equity"
                       value={profile.equity}
                       onChange={handleChange}
                       disabled={!isEditing}
                     />
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      fullWidth
-                      label="Currency"
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-black mb-1">Currency</label>
+                    <input
+                      className="w-full px-3 py-2 border border-black rounded-md bg-white bg-opacity-40 text-gray-700 disabled:opacity-50"
+                      type="text"
                       name="currency"
                       value={profile.currency}
                       onChange={handleChange}
                       disabled={!isEditing}
                     />
-                  </Grid>
-                </Grid>
-                <Box sx={{ mt: 3, display: 'flex', gap: 2 }}>
+                  </div>
+                </div>
+                <div className="mt-4 flex gap-2">
                   {!isEditing ? (
-                    <Button variant="contained" color="primary" onClick={() => setIsEditing(true)}>
+                    <button
+                      type="button"
+                      onClick={() => setIsEditing(true)}
+                      className="px-4 py-2 bg-blue-800 text-white rounded-md hover:bg-blue-700"
+                    >
                       Edit Profile
-                    </Button>
+                    </button>
                   ) : (
                     <>
-                      <Button variant="contained" color="primary" type="submit">
+                      <button
+                        type="submit"
+                        className="px-4 py-2 bg-blue-800 text-white rounded-md hover:bg-blue-700"
+                      >
                         Save Changes
-                      </Button>
-                      <Button
-                        variant="outlined"
+                      </button>
+                      <button
+                        type="button"
                         onClick={() => {
                           setIsEditing(false);
                           fetchProfile();
                         }}
+                        className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
                       >
                         Cancel
-                      </Button>
+                      </button>
                     </>
                   )}
-                  <Button variant="outlined" color="error" onClick={handleDelete}>
+                  <button
+                    type="button"
+                    onClick={handleDelete}
+                    className="px-4 py-2 border border-red-300 rounded-md text-red-700 hover:bg-red-50"
+                  >
                     Delete Profile
-                  </Button>
-                </Box>
+                  </button>
+                </div>
               </form>
-            </Paper>
-          </Box>
-        </Grid>
+            </div>
+          </div>
+        </div>
 
         {/* Right: Subscription History */}
-        <Grid item xs={12} md={4}>
-          <Paper elevation={3} sx={{ p: 3 }}>
-            <Typography variant="h5" sx={{ mb: 2 }}>
-              Subscription History
-            </Typography>
+        <div>
+          <div className="bg-gray-300 p-4 rounded-lg shadow">
+            <h3 className="text-xl font-bold mb-4">Subscription History</h3>
 
             {/* Search Bar */}
-            <TextField
-              fullWidth
-              label="Search by Month"
-              value={searchMonth}
-              onChange={handleSearchChange}
-              sx={{ mb: 2 }}
-            />
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-black mb-1">Search by Month</label>
+              <input
+                type="text"
+                className="w-full px-3 py-2 border border-black rounded-md bg-white bg-opacity-40 text-gray-700"
+                value={searchMonth}
+                onChange={handleSearchChange}
+              />
+            </div>
 
             {/* Display filtered subscription details */}
             {filteredSubscriptions.length > 0 ? (
               filteredSubscriptions.map((subscription, index) => (
-                <Typography key={index} variant="body2" sx={{ color: 'text.secondary' }}>
+                <p key={index} className="text-gray-600 text-sm mb-1">
                   {subscription.month}: {subscription.details}
-                </Typography>
+                </p>
               ))
             ) : (
-              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                No subscription history available for this month.
-              </Typography>
+              <p className="text-gray-600 text-sm">No subscription history available yet.</p>
             )}
+<button
+  onClick={() => {
+    const doc = new jsPDF();
 
-            <Button
-              variant="contained"
-              color="primary"
-              sx={{ mt: 2 }}
-              onClick={() => {
-                console.log('Download PDF clicked');
-              }}
-            >
-              Download PDF
-            </Button>
-          </Paper>
-        </Grid>
-      </Grid>
+    doc.setFontSize(18);
+    doc.setTextColor(33, 37, 41);
+    doc.text("Axento Books", 10, 20);
+
+    doc.setFontSize(14);
+    doc.text("Monthly Subscription Receipt", 10, 30);
+    doc.setDrawColor(200);
+    doc.line(10, 35, 200, 35);
+
+    const details = [
+      ["Month", "April 2025"],
+      ["Subscription Date", "08 May 2025"],
+      ["Payment Amount", "2000.00 LKR"],
+      ["Discount Amount", "2000.00 LKR"],
+      ["Total Amount", "00.00 LKR"],
+      ["Bank Name", "WesternUnion"],
+      ["Card Number", "18**********1090"],
+      ["Card Type", "Visa"],
+      ["Transaction ID", "SL973427001"],
+      ["Next Billing Date", "08 July 2025"]
+    ];
+
+    let y = 45;
+    details.forEach(([label, value]) => {
+      // Set background color for specific labels
+      if (label === "Discount Amount") {
+        doc.setFillColor(230, 255, 237); // light green
+        doc.rect(8, y - 6, 190, 10, 'F');
+      } else if (label === "Total Amount") {
+        doc.setFillColor(255, 229, 229); // light red
+        doc.rect(8, y - 6, 190, 10, 'F');
+      }
+
+      // Set text after rect
+      doc.setTextColor(33, 37, 41);
+      doc.text(`${label}:`, 10, y);
+      doc.text(value, 80, y);
+      y += 10;
+    });
+
+    doc.setDrawColor(220);
+    doc.line(10, y + 5, 200, y + 5);
+    doc.setFontSize(10);
+    doc.setTextColor(130);
+    doc.text("This document serves as an official receipt for your subscription.", 10, y + 15);
+    doc.text("Generated by Axento Books • www.axento.ai", 10, y + 22);
+
+    doc.save("Axento_Receipt_April2025.pdf");
+  }}
+  className="inline-flex items-center gap-2 bg-white text-blue-900 px-4 py-2 rounded-lg hover:bg-blue-50 transition"
+>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className="h-5 w-5"
+    viewBox="0 0 20 20"
+    fill="currentColor"
+  >
+    <path
+      fillRule="evenodd"
+      d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
+      clipRule="evenodd"
+    />
+  </svg>
+  Download PDF
+</button>
+          </div>
+        </div>
+      </div>
 
       {/* Snackbar */}
-      <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={handleCloseSnackbar}>
-        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
-    </Container>
+      {snackbar.open && (
+        <div className={`fixed bottom-4 right-4 px-4 py-2 rounded-md shadow-lg ${
+          snackbar.severity === 'error' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
+        }`}>
+          <div className="flex justify-between items-center">
+            <span>{snackbar.message}</span>
+            <button onClick={handleCloseSnackbar} className="ml-4">
+              ×
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 

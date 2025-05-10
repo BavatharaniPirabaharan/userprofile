@@ -1,21 +1,6 @@
+// export default Assistant;
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useAuth } from "../context/AuthContext";
-import {
-  Box,
-  TextField,
-  Paper,
-  Typography,
-  CircularProgress,
-  IconButton,
-  Button,
-  Fade,
-  Tooltip,
-  Alert,
-  Chip,
-  Collapse,
-  Tabs,
-  Tab,
-} from "@mui/material";
 import {
   Send as SendIcon,
   Refresh as RefreshIcon,
@@ -259,217 +244,139 @@ const Assistant = () => {
   };
 
   return (
-    <Box
-      sx={{
-        height: "calc(100vh - 64px)",
-        display: "flex",
-        flexDirection: "column",
-        bgcolor: "background.default",
-        p: 2,
-        maxWidth: "1200px",
-        margin: "0 auto",
-      }}
-    >
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          mb: 3,
-        }}
-      >
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-          <Typography variant="h4" component="h1" sx={{ fontWeight: 600 }}>
-            Financial Assistant
-          </Typography>
-          <Chip 
-            icon={<AutoAwesomeIcon />} 
-            label="Gemini 2.0 Flash" 
-            color="primary" 
-            variant="outlined"
-            size="small"
-          />
+    <div className="h-[calc(100vh-64px)] flex flex-col bg-default p-2 max-w-[1200px] mx-auto">
+      <div className="flex justify-between items-center mb-3">
+        <div className="flex items-center gap-2">
+          <h1 className="text-2xl font-semibold">Financial Assistant</h1>
+          <div className="flex items-center gap-1 px-2 py-1 border border-blue-500 rounded-full text-blue-500 text-sm">
+            <AutoAwesomeIcon className="w-4 h-4" />
+            <span>Gemini 2.0 Flash</span>
+          </div>
           {!isApiAvailable && (
-            <Chip 
-              icon={<WifiOffIcon />} 
-              label="API Offline" 
-              color="error" 
-              variant="outlined"
-              size="small"
-            />
+            <div className="flex items-center gap-1 px-2 py-1 border border-red-500 rounded-full text-red-500 text-sm">
+              <WifiOffIcon className="w-4 h-4" />
+              <span>API Offline</span>
+            </div>
           )}
-        </Box>
-        <Box sx={{ display: 'flex', gap: 1 }}>
-          <Tooltip title="View Chat History">
-            <Button
-              variant="outlined"
-              startIcon={<HistoryIcon />}
-              onClick={() => setActiveTab(1)}
-              sx={{ borderRadius: 2 }}
-            >
-              Chat History
-            </Button>
-          </Tooltip>
-          <Tooltip title="Start New Chat">
-            <Button
-              variant="outlined"
-              startIcon={<RefreshIcon />}
-              onClick={handleNewChat}
-              sx={{ borderRadius: 2 }}
-            >
-              New Chat
-            </Button>
-          </Tooltip>
-        </Box>
-      </Box>
+        </div>
+        <div className="flex gap-1">
+          <button
+            className="flex items-center gap-1 px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-100"
+            onClick={() => setActiveTab(1)}
+            title="View Chat History"
+          >
+            <HistoryIcon className="w-5 h-5" />
+            <span>Chat History</span>
+          </button>
+          <button
+            className="flex items-center gap-1 px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-100"
+            onClick={handleNewChat}
+            title="Start New Chat"
+          >
+            <RefreshIcon className="w-5 h-5" />
+            <span>New Chat</span>
+          </button>
+        </div>
+      </div>
 
       {error && (
-        <Alert 
-          severity="error" 
-          sx={{ mb: 2, borderRadius: 2 }}
-          action={
-            errorDetails && (
-              <IconButton
-                aria-label="show error details"
-                color="inherit"
-                size="small"
+        <div className="mb-2 rounded-lg bg-red-100 border border-red-400 text-red-700 px-4 py-3">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-1">
+              <ErrorIcon className="w-5 h-5" />
+              <span>{error}</span>
+            </div>
+            {errorDetails && (
+              <button
                 onClick={toggleErrorDetails}
+                className="text-red-700 hover:text-red-900"
               >
                 {showErrorDetails ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-              </IconButton>
-            )
-          }
-        >
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <ErrorIcon />
-            <Typography variant="body1">{error}</Typography>
-          </Box>
-          <Collapse in={showErrorDetails}>
-            <Box sx={{ mt: 1, p: 1, bgcolor: 'rgba(221, 221, 221, 0.17)', borderRadius: 1 }}>
-              <Typography variant="body2" component="pre" sx={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
-                {errorDetails}
-              </Typography>
-            </Box>
-          </Collapse>
-        </Alert>
+              </button>
+            )}
+          </div>
+          {showErrorDetails && (
+            <div className="mt-1 p-1 bg-gray-100 rounded">
+              <pre className="whitespace-pre-wrap break-words text-sm">{errorDetails}</pre>
+            </div>
+          )}
+        </div>
       )}
 
-      <Tabs 
-        value={activeTab} 
-        onChange={handleTabChange} 
-        sx={{ mb: 2 }}
-        indicatorColor="primary"
-        textColor="primary"
-      >
-        <Tab label="Chat" />
-        <Tab label="History" />
-      </Tabs>
+      <div className="mb-2 flex border-b">
+        <button
+          className={`px-4 py-2 ${activeTab === 0 ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-500'}`}
+          onClick={() => setActiveTab(0)}
+        >
+          Chat
+        </button>
+        <button
+          className={`px-4 py-2 ${activeTab === 1 ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-500'}`}
+          onClick={() => setActiveTab(1)}
+        >
+          History
+        </button>
+      </div>
 
       {activeTab === 0 ? (
-        <Paper
-          elevation={3}
-          sx={{
-            flex: 1,
-            overflow: "auto",
-            mb: 3,
-            p: 3,
-            bgcolor: "background.paper",
-            borderRadius: 2,
-          }}
-        >
+        <div className="flex-1 overflow-auto mb-3 p-3 bg-white rounded-lg shadow">
           {messages.length === 0 ? (
-            <Box sx={{ textAlign: "center", py: 4 }}>
-              <LightbulbIcon sx={{ fontSize: 60, color: "primary.main", mb: 2 }} />
-              <Typography variant="h6" sx={{ mb: 3 }}>
-                Welcome to your Financial Assistant! 👋
-              </Typography>
-              <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
+            <div className="text-center py-4">
+              <LightbulbIcon className="w-14 h-14 text-blue-500 mb-2 mx-auto" />
+              <h2 className="text-xl mb-3">Welcome to your Financial Assistant! 👋</h2>
+              <p className="text-gray-500 mb-4">
                 I can help you analyze your finances, track expenses, and provide insights.
                 Try asking me one of these questions:
-              </Typography>
-              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, justifyContent: "center" }}>
+              </p>
+              <div className="flex flex-wrap gap-2 justify-center">
                 {SUGGESTED_QUESTIONS.map((question) => (
-                  <Button
+                  <button
                     key={`suggestion-${question}`}
-                    variant="outlined"
+                    className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100"
                     onClick={() => handleSuggestionClick(question)}
-                    sx={{ borderRadius: 2 }}
                   >
                     {question}
-                  </Button>
+                  </button>
                 ))}
-              </Box>
-            </Box>
+              </div>
+            </div>
           ) : (
             messages.map((message) => (
-              <Fade in={true} key={message.id}>
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: message.sender === "user" ? "flex-end" : "flex-start",
-                    mb: 2,
+              <div
+                key={message.id}
+                className={`flex mb-2 ${message.sender === "user" ? "justify-end" : "justify-start"}`}
+              >
+                <div
+                  className={`p-2 max-w-[70%] rounded-lg relative ${
+                    message.sender === "user" 
+                      ? "bg-blue-500 text-white" 
+                      : "bg-gray-100 text-gray-800"
+                  }`}
+                  style={{
+                    ...(message.sender === "assistant" && {
+                      clipPath: 'polygon(0 0, 100% 0, 100% 100%, 8px 100%, 0 calc(50% - 4px))'
+                    }),
+                    ...(message.sender === "user" && {
+                      clipPath: 'polygon(0 0, calc(100% - 8px) 0, 100% 50%, calc(100% - 8px) 100%, 0 100%)'
+                    })
                   }}
                 >
-                  <Paper
-                    elevation={1}
-                    sx={{
-                      p: 2,
-                      maxWidth: "70%",
-                      bgcolor: message.sender === "user" ? "primary.main" : "grey.100",
-                      color: message.sender === "user" ? "white" : "text.primary",
-                      borderRadius: 2,
-                      position: "relative",
-                      "&::before": message.sender === "assistant" ? {
-                        content: '""',
-                        position: "absolute",
-                        left: "-8px",
-                        top: "50%",
-                        transform: "translateY(-50%)",
-                        borderStyle: "solid",
-                        borderWidth: "8px 8px 8px 0",
-                        borderColor: "transparent grey.100 transparent transparent",
-                      } : {},
-                      "&::after": message.sender === "user" ? {
-                        content: '""',
-                        position: "absolute",
-                        right: "-8px",
-                        top: "50%",
-                        transform: "translateY(-50%)",
-                        borderStyle: "solid",
-                        borderWidth: "8px 0 8px 8px",
-                        borderColor: "transparent transparent transparent primary.main",
-                      } : {},
-                    }}
-                  >
-                    <Typography variant="body1" sx={{ whiteSpace: "pre-wrap" }}>
-                      {message.text}
-                    </Typography>
-                    <Typography
-                      variant="caption"
-                      sx={{
-                        mt: 1,
-                        display: "block",
-                        opacity: 0.7,
-                        textAlign: "right",
-                      }}
-                    >
-                      {message.timestamp}
-                    </Typography>
-                  </Paper>
-                </Box>
-              </Fade>
+                  <div className="whitespace-pre-wrap">{message.text}</div>
+                  <div className="mt-1 opacity-70 text-right text-xs">
+                    {message.timestamp}
+                  </div>
+                </div>
+              </div>
             ))
           )}
           {isLoading && (
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
-              <CircularProgress size={20} />
-              <Typography variant="body2" color="text.secondary">
-                Gemini is thinking...
-              </Typography>
-            </Box>
+            <div className="flex items-center gap-1 mb-2">
+              <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+              <span className="text-gray-500">Gemini is thinking...</span>
+            </div>
           )}
           <div ref={messagesEndRef} />
-        </Paper>
+        </div>
       ) : (
         <ChatHistory 
           onSelectChat={handleSelectChat} 
@@ -478,56 +385,31 @@ const Assistant = () => {
       )}
 
       {activeTab === 0 && (
-        <Box
-          sx={{
-            display: "flex",
-            gap: 1,
-            bgcolor: "background.paper",
-            p: 2,
-            borderRadius: 2,
-            boxShadow: 1,
-          }}
-        >
-          <TextField
-            fullWidth
-            variant="outlined"
+        <div className="flex gap-1 bg-white p-2 rounded-lg shadow">
+          <textarea
+            className="flex-1 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="Ask about your financial data..."
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={handleKeyPress}
             disabled={isLoading || !isApiAvailable}
-            multiline
-            maxRows={4}
-            sx={{
-              "& .MuiOutlinedInput-root": {
-                borderRadius: 2,
-              },
-            }}
+            rows={1}
           />
-          <Tooltip title="Send Message">
-            <IconButton
-              color="primary"
-              onClick={handleSend}
-              disabled={isLoading || !input.trim() || !isApiAvailable}
-              sx={{
-                alignSelf: "flex-end",
-                bgcolor: "primary.main",
-                color: "primary.light",
-                "&:hover": {
-                  bgcolor: "primary.dark",
-                },
-                "&.Mui-disabled": {
-                  bgcolor: "grey.300",
-                  color: "grey.500",
-                },
-              }}
-            >
-              <SendIcon />
-            </IconButton>
-          </Tooltip>
-        </Box>
+          <button
+            className={`p-2 rounded-lg self-end ${
+              isLoading || !input.trim() || !isApiAvailable
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                : "bg-blue-500 text-white hover:bg-blue-600"
+            }`}
+            onClick={handleSend}
+            disabled={isLoading || !input.trim() || !isApiAvailable}
+            title="Send Message"
+          >
+            <SendIcon />
+          </button>
+        </div>
       )}
-    </Box>
+    </div>
   );
 };
 

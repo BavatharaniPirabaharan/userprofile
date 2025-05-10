@@ -1,22 +1,6 @@
+// export default Register;
 import React, { useState } from 'react';
-import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
-import { 
-  Box, 
-  Card, 
-  CardContent, 
-  TextField, 
-  Button, 
-  Typography, 
-  IconButton, 
-  InputAdornment, 
-  Alert,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Divider
-} from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { authAPI } from '../config/api';
 
@@ -67,12 +51,10 @@ const Register = () => {
 
     setFormData({ ...formData, [name]: formattedValue });
     
-    // Clear field-specific error when user types
     if (fieldErrors[name]) {
       setFieldErrors({ ...fieldErrors, [name]: '' });
     }
     
-    // Clear general error when user types
     setError('');
   };
 
@@ -94,7 +76,6 @@ const Register = () => {
     const errors = {};
     let hasErrors = false;
 
-    // Validate required fields
     const requiredFields = ['firstName', 'lastName', 'email', 'password', 'businessName', 'phoneNumber'];
     for (const key of requiredFields) {
       if (!formData[key]) {
@@ -103,19 +84,16 @@ const Register = () => {
       }
     }
 
-    // Validate email format
     if (formData.email && !validateEmail(formData.email)) {
       errors.email = 'Please enter a valid email address';
       hasErrors = true;
     }
 
-    // Validate password length
     if (formData.password && !validatePassword(formData.password)) {
       errors.password = 'Password must be at least 6 characters long';
       hasErrors = true;
     }
 
-    // Validate phone number format
     if (formData.phoneNumber && !validatePhoneNumber(formData.phoneNumber)) {
       errors.phoneNumber = 'Please enter a valid phone number (10 digits)';
       hasErrors = true;
@@ -130,54 +108,40 @@ const Register = () => {
     setError('');
     setLoading(true);
 
-    // Validate form
     if (!validateForm()) {
       setLoading(false);
       return;
     }
 
     try {
-      // Send all data in a single request
       const response = await authAPI.register(formData);
       
-      // Store token and user data
       localStorage.setItem('token', response.data.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.data.user));
 
-      // Redirect to subscription page
       navigate('/subscription');
     } catch (err) {
       console.error('Registration error:', err);
       
-      // Handle specific API error responses
       if (err.response) {
-        // Server responded with an error
         if (err.response.status === 400) {
-          // Validation error from server
           if (err.response.data.errors) {
-            // Field-specific errors
             setFieldErrors(err.response.data.errors);
           } else if (err.response.data.message) {
-            // General error message
             setError(err.response.data.message);
           } else {
             setError('Invalid registration data. Please check your inputs.');
           }
         } else if (err.response.status === 409) {
-          // Conflict (e.g., email already exists)
           setError('This email is already registered. Please use a different email or try logging in.');
         } else if (err.response.status === 500) {
-          // Server error
           setError('Server error. Please try again later or contact support.');
         } else {
-          // Other error
           setError(`Error: ${err.response.data.message || 'Unknown error occurred'}`);
         }
       } else if (err.request) {
-        // Request was made but no response received
         setError('Network error. Please check your internet connection and try again.');
       } else {
-        // Something else happened
         setError('An unexpected error occurred. Please try again.');
       }
     } finally {
@@ -190,218 +154,235 @@ const Register = () => {
   };
 
   return (
-    <Box sx={{ minHeight: '100vh', display: 'flex', width: '100%', alignItems: 'center', justifyContent: 'center', bgcolor: 'background.default', py: 3, px: 2 }}>
-      <Card sx={{ maxWidth: '50%', width: '100%', boxShadow: 3, color: 'white' }}>
-        <CardContent sx={{ p: 4 }}>
-          <Box component="form" onSubmit={handleSubmit} noValidate>
-            <Typography variant="h4" component="h1" gutterBottom align="center" sx={{ mb: 4 }}>
-              Register
-            </Typography>
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 py-8 px-4">
+      <div className="w-full max-w-2xl bg-gray-300 rounded-lg shadow-lg">
+        <div className="p-8">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <h1 className="text-3xl font-bold text-center mb-6">Register</h1>
 
-            {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
+            {error && (
+              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                {error}
+              </div>
+            )}
 
-            <Typography variant="h6" sx={{ mb: 2 }}>Personal Information</Typography>
+            <h2 className="text-xl font-semibold mb-4">Personal Information</h2>
             
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="firstName"
-              label="First Name"
-              name="firstName"
-              autoComplete="given-name"
-              value={formData.firstName}
-              onChange={handleChange}
-              error={!!fieldErrors.firstName}
-              helperText={fieldErrors.firstName}
-              sx={{ mb: 2 }}
-            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">First Name *</label>
+                <input
+                  className={`w-full px-3 py-2 border ${fieldErrors.firstName ? 'border-red-500' : 'border-gray-400'} rounded-md bg-white bg-opacity-40`}
+                  type="text"
+                  name="firstName"
+                  value={formData.firstName}
+                  onChange={handleChange}
+                />
+                {fieldErrors.firstName && (
+                  <p className="mt-1 text-sm text-red-600">{fieldErrors.firstName}</p>
+                )}
+              </div>
 
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="lastName"
-              label="Last Name"
-              name="lastName"
-              autoComplete="family-name"
-              value={formData.lastName}
-              onChange={handleChange}
-              error={!!fieldErrors.lastName}
-              helperText={fieldErrors.lastName}
-              sx={{ mb: 2 }}
-            />
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Last Name *</label>
+                <input
+                  className={`w-full px-3 py-2 border ${fieldErrors.lastName ? 'border-red-500' : 'border-gray-400'} rounded-md bg-white bg-opacity-40`}
+                  type="text"
+                  name="lastName"
+                  value={formData.lastName}
+                  onChange={handleChange}
+                />
+                {fieldErrors.lastName && (
+                  <p className="mt-1 text-sm text-red-600">{fieldErrors.lastName}</p>
+                )}
+              </div>
+            </div>
 
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="email"
-              label="Email Address"
-              name="email"
-              autoComplete="email"
-              value={formData.email}
-              onChange={handleChange}
-              error={!!fieldErrors.email}
-              helperText={fieldErrors.email}
-              sx={{ mb: 2 }}
-            />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+              <input
+                className={`w-full px-3 py-2 border ${fieldErrors.email ? 'border-red-500' : 'border-gray-400'} rounded-md bg-white bg-opacity-40`}
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+              />
+              {fieldErrors.email && (
+                <p className="mt-1 text-sm text-red-600">{fieldErrors.email}</p>
+              )}
+            </div>
 
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="password"
-              label="Password"
-              type={showPassword ? 'text' : 'password'}
-              id="password"
-              autoComplete="new-password"
-              value={formData.password}
-              onChange={handleChange}
-              error={!!fieldErrors.password}
-              helperText={fieldErrors.password}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton onClick={togglePasswordVisibility} edge="end">
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-              sx={{ mb: 2 }}
-            />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Password *</label>
+              <div className="relative">
+                <input
+                  className={`w-full px-3 py-2 border ${fieldErrors.password ? 'border-red-500' : 'border-gray-400'} rounded-md bg-white bg-opacity-40`}
+                  type={showPassword ? 'text' : 'password'}
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                />
+                <button
+                  type="button"
+                  onClick={togglePasswordVisibility}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                >
+                  {showPassword ? (
+                    <VisibilityOff className="h-5 w-5 text-gray-500" />
+                  ) : (
+                    <Visibility className="h-5 w-5 text-gray-500" />
+                  )}
+                </button>
+              </div>
+              {fieldErrors.password && (
+                <p className="mt-1 text-sm text-red-600">{fieldErrors.password}</p>
+              )}
+            </div>
 
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="businessName"
-              label="Business Name"
-              name="businessName"
-              value={formData.businessName}
-              onChange={handleChange}
-              error={!!fieldErrors.businessName}
-              helperText={fieldErrors.businessName}
-              sx={{ mb: 2 }}
-            />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Business Name *</label>
+              <input
+                className={`w-full px-3 py-2 border ${fieldErrors.businessName ? 'border-red-500' : 'border-gray-400'} rounded-md bg-white bg-opacity-40`}
+                type="text"
+                name="businessName"
+                value={formData.businessName}
+                onChange={handleChange}
+              />
+              {fieldErrors.businessName && (
+                <p className="mt-1 text-sm text-red-600">{fieldErrors.businessName}</p>
+              )}
+            </div>
 
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="phoneNumber"
-              label="Phone Number"
-              name="phoneNumber"
-              autoComplete="tel"
-              value={formData.phoneNumber}
-              onChange={handleChange}
-              error={!!fieldErrors.phoneNumber}
-              helperText={fieldErrors.phoneNumber}
-              sx={{ mb: 3 }}
-            />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number *</label>
+              <input
+                className={`w-full px-3 py-2 border ${fieldErrors.phoneNumber ? 'border-red-500' : 'border-gray-400'} rounded-md bg-white bg-opacity-40`}
+                type="tel"
+                name="phoneNumber"
+                value={formData.phoneNumber}
+                onChange={handleChange}
+                maxLength="10"
+              />
+              {fieldErrors.phoneNumber && (
+                <p className="mt-1 text-sm text-red-600">{fieldErrors.phoneNumber}</p>
+              )}
+            </div>
 
-            <Divider sx={{ my: 3 }} />
+            <div className="border-t border-gray-400 my-6"></div>
             
-            <Typography variant="h6" sx={{ mb: 2 }}>Financial Information</Typography>
+            <h2 className="text-xl font-semibold mb-4">Financial Information</h2>
 
-            <FormControl fullWidth sx={{ mb: 3 }}>
-              <InputLabel id="currency-label">Currency</InputLabel>
-              <Select
-                labelId="currency-label"
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Currency</label>
+              <select
                 name="currency"
                 value={formData.currency}
                 onChange={handleChange}
-                label="Currency"
+                className="w-full px-3 py-2 border border-gray-400 rounded-md bg-white bg-opacity-40"
               >
-                <MenuItem value="USD">US Dollar USD</MenuItem>
-                <MenuItem value="LKR">Sri Lankan Rupees LKR</MenuItem>
-                <MenuItem value="INR">Indian Rupees INR</MenuItem>
-                <MenuItem value="CAD">Canadian Dollar CAD</MenuItem>
-                <MenuItem value="AUD">Australian Dollar AUD</MenuItem>
-              </Select>
-            </FormControl>
+                <option value="USD">US Dollar USD</option>
+                <option value="LKR">Sri Lankan Rupees LKR</option>
+                <option value="INR">Indian Rupees INR</option>
+                <option value="CAD">Canadian Dollar CAD</option>
+                <option value="AUD">Australian Dollar AUD</option>
+              </select>
+            </div>
 
-            <TextField
-              margin="normal"
-              fullWidth
-              name="nonCurrentAssets"
-              label="Non-Current Assets"
-              value={formData.nonCurrentAssets}
-              onChange={handleChange}
-              inputProps={{ pattern: '^[0-9]*$', maxLength: 12 }}
-              sx={{ mb: 2 }}
-            />
-            <TextField
-              margin="normal"
-              fullWidth
-              name="nonCurrentAssetsDesc"
-              label="Non-Current Assets Description (Optional)"
-              value={formData.nonCurrentAssetsDesc}
-              onChange={handleChange}
-              sx={{ mb: 2 }}
-            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Non-Current Assets</label>
+                <input
+                  className="w-full px-3 py-2 border border-gray-400 rounded-md bg-white bg-opacity-40"
+                  type="text"
+                  name="nonCurrentAssets"
+                  value={formData.nonCurrentAssets}
+                  onChange={handleChange}
+                  pattern="^\d+(\.\d{1,2})?$"
+                  maxLength="12"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Non-Current Assets Description (Optional)</label>
+                <input
+                  className="w-full px-3 py-2 border border-gray-400 rounded-md bg-white bg-opacity-40"
+                  type="text"
+                  name="nonCurrentAssetsDesc"
+                  value={formData.nonCurrentAssetsDesc}
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
 
-            <TextField
-              margin="normal"
-              fullWidth
-              name="liabilities"
-              label="Liabilities"
-              value={formData.liabilities}
-              onChange={handleChange}
-              inputProps={{ pattern: '^[0-9]*$', maxLength: 12 }}
-              sx={{ mb: 2 }}
-            />
-            <TextField
-              margin="normal"
-              fullWidth
-              name="liabilitiesDesc"
-              label="Liabilities Description (Optional)"
-              value={formData.liabilitiesDesc}
-              onChange={handleChange}
-              sx={{ mb: 2 }}
-            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Liabilities</label>
+                <input
+                  className="w-full px-3 py-2 border border-gray-400 rounded-md bg-white bg-opacity-40"
+                  type="text"
+                  name="liabilities"
+                  value={formData.liabilities}
+                  onChange={handleChange}
+                  pattern="^\d+(\.\d{1,2})?$"
+                  maxLength="12"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Liabilities Description (Optional)</label>
+                <input
+                  className="w-full px-3 py-2 border border-gray-400 rounded-md bg-white bg-opacity-40"
+                  type="text"
+                  name="liabilitiesDesc"
+                  value={formData.liabilitiesDesc}
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
 
-            <TextField
-              margin="normal"
-              fullWidth
-              name="equity"
-              label="Equity"
-              value={formData.equity}
-              onChange={handleChange}
-              inputProps={{ pattern: '^[0-9]*$', maxLength: 12 }}
-              sx={{ mb: 2 }}
-            />
-            <TextField
-              margin="normal"
-              fullWidth
-              name="equityDesc"
-              label="Equity Description (Optional)"
-              value={formData.equityDesc}
-              onChange={handleChange}
-              sx={{ mb: 3 }}
-            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Equity</label>
+                <input
+                  className="w-full px-3 py-2 border border-gray-400 rounded-md bg-white bg-opacity-40"
+                  type="text"
+                  name="equity"
+                  value={formData.equity}
+                  onChange={handleChange}
+                  pattern="^\d+(\.\d{1,2})?$"
+                  maxLength="12"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Equity Description (Optional)</label>
+                <input
+                  className="w-full px-3 py-2 border border-gray-400 rounded-md bg-white bg-opacity-40"
+                  type="text"
+                  name="equityDesc"
+                  value={formData.equityDesc}
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
 
-            <Button 
-              type="submit" 
-              fullWidth 
-              variant="contained" 
-              sx={{ mb: 3, py: 1.5 }}
+            <button
+              type="submit"
+              className={`w-full py-3 px-4 bg-blue-800 text-white font-medium rounded-md hover:bg-blue-700 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
               disabled={loading}
             >
               {loading ? 'Registering...' : 'Register'}
-            </Button>
+            </button>
 
-            <Box sx={{ textAlign: 'center' }}>
-              <Typography variant="body2" color="text.secondary" gutterBottom>
+            <div className="text-center">
+              <p className="text-sm text-gray-600">
                 Already have an account?{' '}
-                <Link to="/login" style={{ color: 'primary.main', textDecoration: 'none' }}>Sign in</Link>
-              </Typography>
-            </Box>
-          </Box>
-        </CardContent>
-      </Card>
-    </Box>
+                <Link to="/login" className="text-blue-600 hover:text-blue-800 font-medium">
+                  Sign in
+                </Link>
+              </p>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
   );
 };
 

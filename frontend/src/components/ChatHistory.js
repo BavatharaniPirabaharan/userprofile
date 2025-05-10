@@ -1,23 +1,5 @@
+// export default ChatHistory; 
 import React, { useState, useEffect } from 'react';
-import {
-  Box,
-  List,
-  ListItem,
-  ListItemText,
-  IconButton,
-  Typography,
-  Paper,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  TextField,
-  Divider,
-  CircularProgress,
-  Alert,
-  Tooltip
-} from '@mui/material';
 import {
   Delete as DeleteIcon,
   Edit as EditIcon,
@@ -38,19 +20,15 @@ const ChatHistory = ({ onSelectChat }) => {
   const [apiStatus, setApiStatus] = useState(null);
 
   useEffect(() => {
-    // Test the chat API endpoints
     testChatApi();
     fetchChats();
   }, []);
 
   const testChatApi = async () => {
     try {
-      console.log('Testing chat API...');
       const testResponse = await chatAPI.testChat();
-      console.log('Chat API test response:', testResponse.data);
       setApiStatus('success');
     } catch (error) {
-      console.error('Chat API test error:', error);
       setApiStatus('error');
     }
   };
@@ -62,7 +40,6 @@ const ChatHistory = ({ onSelectChat }) => {
       setChats(response.data);
       setError(null);
     } catch (error) {
-      console.error('Error fetching chats:', error);
       setError('Failed to fetch chat history');
     } finally {
       setLoading(false);
@@ -80,7 +57,6 @@ const ChatHistory = ({ onSelectChat }) => {
       await chatAPI.deleteChat(chatId);
       setChats(chats.filter(chat => chat._id !== chatId));
     } catch (error) {
-      console.error('Error deleting chat:', error);
       setError('Failed to delete chat');
     }
   };
@@ -98,152 +74,147 @@ const ChatHistory = ({ onSelectChat }) => {
         message: editMessage,
         response: editResponse
       });
-      setChats(chats.map(chat => 
+      setChats(chats.map(chat =>
         chat._id === selectedChat._id ? updatedChat.data : chat
       ));
       setEditDialogOpen(false);
     } catch (error) {
-      console.error('Error updating chat:', error);
       setError('Failed to update chat');
     }
   };
 
   const handleSelectChat = (chat) => {
-    console.log('Selected chat:', chat);
     if (onSelectChat) {
       onSelectChat(chat);
     }
   };
 
   return (
-    <Box sx={{ maxWidth: 800, margin: '0 auto', p: 2 }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <HistoryIcon sx={{ mr: 1 }} />
-          <Typography variant="h6">Chat History</Typography>
-        </Box>
-        <Tooltip title="Refresh chat history">
-          <IconButton onClick={handleRefresh} disabled={refreshing}>
-            <RefreshIcon />
-          </IconButton>
-        </Tooltip>
-      </Box>
+    <div className="max-w-4xl mx-auto p-4">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center space-x-2">
+          <HistoryIcon className="text-gray-600" />
+          <h2 className="text-xl font-semibold">Chat History</h2>
+        </div>
+        <button
+          className="text-blue-600 hover:text-blue-800"
+          onClick={handleRefresh}
+          disabled={refreshing}
+          title="Refresh chat history"
+        >
+          <RefreshIcon />
+        </button>
+      </div>
 
       {apiStatus && (
-        <Paper sx={{ p: 2, mb: 2, bgcolor: 'background.default' }}>
-          <Typography variant="subtitle2" color="text.secondary">
-            API Status:
-          </Typography>
-          <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+        <div className="bg-gray-100 p-3 rounded mb-4 text-sm">
+          <strong className="text-gray-700">API Status:</strong>
+          <pre className="whitespace-pre-wrap break-words mt-1">
             {JSON.stringify(apiStatus, null, 2)}
           </pre>
-        </Paper>
+        </div>
       )}
 
       {error && (
-        <Alert severity="error" sx={{ mb: 2 }}>
+        <div className="bg-red-100 border border-red-400 text-red-700 p-3 rounded mb-4">
           {error}
-        </Alert>
+        </div>
       )}
 
       {loading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
-          <CircularProgress />
-        </Box>
+        <div className="flex justify-center p-6">
+          <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+        </div>
       ) : chats.length === 0 ? (
-        <Paper sx={{ p: 3, textAlign: 'center' }}>
-          <Typography variant="body1" color="text.secondary">
-            No chat history found. Start a new conversation to see it here.
-          </Typography>
-        </Paper>
+        <div className="p-6 text-center bg-gray-50 rounded shadow">
+          <p className="text-gray-600">No chat history found. Start a new conversation to see it here.</p>
+        </div>
       ) : (
-        <Paper elevation={3}>
-          <List>
+        <div className="bg-white shadow rounded">
+          <ul>
             {chats.map((chat, index) => (
-              <React.Fragment key={chat._id}>
-                <ListItem
-                  sx={{ 
-                    cursor: 'pointer',
-                    '&:hover': { bgcolor: 'rgba(0, 0, 0, 0.04)' }
-                  }}
-                  onClick={() => handleSelectChat(chat)}
-                  secondaryAction={
-                    <Box>
-                      <Tooltip title="Edit chat">
-                        <IconButton edge="end" onClick={(e) => {
-                          e.stopPropagation();
-                          handleEdit(chat);
-                        }}>
-                          <EditIcon />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title="Delete chat">
-                        <IconButton edge="end" onClick={(e) => {
-                          e.stopPropagation();
-                          handleDelete(chat._id);
-                        }}>
-                          <DeleteIcon />
-                        </IconButton>
-                      </Tooltip>
-                    </Box>
-                  }
-                >
-                  <ListItemText
-                    primary={
-                      <Typography variant="subtitle1" component="div">
-                        {chat.message.length > 100 ? `${chat.message.substring(0, 100)}...` : chat.message}
-                      </Typography>
-                    }
-                    secondary={
-                      <>
-                        <Typography component="span" variant="body2" color="text.primary">
-                          Response:
-                        </Typography>
-                        {' '}{chat.response.substring(0, 100)}{chat.response.length > 100 ? '...' : ''}
-                        <Typography variant="caption" display="block" color="text.secondary">
-                          {new Date(chat.timestamp).toLocaleString()}
-                        </Typography>
-                      </>
-                    }
-                  />
-                </ListItem>
-                {index < chats.length - 1 && <Divider />}
-              </React.Fragment>
+              <li
+                key={chat._id}
+                onClick={() => handleSelectChat(chat)}
+                className="cursor-pointer hover:bg-gray-100 px-4 py-3 border-b last:border-b-0 flex justify-between items-start"
+              >
+                <div className="flex-1">
+                  <p className="font-medium text-gray-800">
+                    {chat.message.length > 100 ? `${chat.message.substring(0, 100)}...` : chat.message}
+                  </p>
+                  <p className="text-sm text-gray-600 mt-1">
+                    <span className="font-semibold">Response:</span> {chat.response.length > 100 ? `${chat.response.substring(0, 100)}...` : chat.response}
+                  </p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    {new Date(chat.timestamp).toLocaleString()}
+                  </p>
+                </div>
+                <div className="flex flex-col items-center gap-2 ml-4">
+                  <button
+                    className="text-gray-500 hover:text-blue-600"
+                    title="Edit chat"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleEdit(chat);
+                    }}
+                  >
+                    <EditIcon fontSize="small" />
+                  </button>
+                  <button
+                    className="text-gray-500 hover:text-red-600"
+                    title="Delete chat"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDelete(chat._id);
+                    }}
+                  >
+                    <DeleteIcon fontSize="small" />
+                  </button>
+                </div>
+              </li>
             ))}
-          </List>
-        </Paper>
+          </ul>
+        </div>
       )}
 
-      <Dialog open={editDialogOpen} onClose={() => setEditDialogOpen(false)}>
-        <DialogTitle>Edit Chat</DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Message"
-            fullWidth
-            value={editMessage}
-            onChange={(e) => setEditMessage(e.target.value)}
-          />
-          <TextField
-            margin="dense"
-            label="Response"
-            fullWidth
-            multiline
-            rows={4}
-            value={editResponse}
-            onChange={(e) => setEditResponse(e.target.value)}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setEditDialogOpen(false)}>Cancel</Button>
-          <Button onClick={handleUpdate} variant="contained" color="primary">
-            Save
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Box>
+      {/* Edit Dialog */}
+      {editDialogOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-lg">
+            <h3 className="text-lg font-semibold mb-4">Edit Chat</h3>
+            <label className="block mb-2 text-sm font-medium text-gray-700">Message</label>
+            <input
+              type="text"
+              className="w-full border border-gray-300 p-2 rounded mb-4"
+              value={editMessage}
+              onChange={(e) => setEditMessage(e.target.value)}
+            />
+            <label className="block mb-2 text-sm font-medium text-gray-700">Response</label>
+            <textarea
+              className="w-full border border-gray-300 p-2 rounded mb-4"
+              rows="4"
+              value={editResponse}
+              onChange={(e) => setEditResponse(e.target.value)}
+            ></textarea>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setEditDialogOpen(false)}
+                className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-100"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleUpdate}
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 
-export default ChatHistory; 
+export default ChatHistory;
